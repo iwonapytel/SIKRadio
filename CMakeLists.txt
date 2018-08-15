@@ -23,7 +23,7 @@ ADD_DEFINITIONS(-DBOOST_LOG_DYN_LINK)
 
 file(GLOB sender_src "src/sender/*.h" "src/sender/*.cpp")
 file(GLOB receiver_src "src/receiver/*.h" "src/receiver/*.cpp")
-file(GLOB common_src "src/common/*.h" "src/common/*.cpp")
+file(GLOB utils_src "src/utils/*.h" "src/utils/*.cpp")
 
 file(GLOB sender_main src/sender/sik_sender.cpp)
 file(GLOB receiver_main src/receiver/sik_receiver.cpp)
@@ -31,5 +31,5 @@ file(GLOB receiver_main src/receiver/sik_receiver.cpp)
 list(REMOVE_ITEM sender_src ${sender_main})
 list(REMOVE_ITEM receiver_src ${receiver_main})
 
-add_executable(sikradio-sender ${sender_main} ${sender_src} ${common_src})
-add_executable(sikradio-receiver ${receiver_main} ${receiver_src} ${common_src})
+add_executable(sikradio-sender ${sender_main} ${sender_src} ${utils_src})
+add_executable(sikradio-receiver ${receiver_main} ${receiver_src} ${utils_src})

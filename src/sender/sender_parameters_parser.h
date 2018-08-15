@@ -3,7 +3,7 @@
 
 #include <string>
 
-struct ServerParameters {
+struct SenderParameters {
   std::string mcast_addr;
   uint16_t data_port;
   uint16_t ctrl_port;
@@ -13,9 +13,9 @@ struct ServerParameters {
   std::string receiver_name;
 };
 
-class ServerParametersParser {
+class SenderParametersParser {
 public:
-  ServerParameters parse(int argc, const char **argv);
+  SenderParameters parse(int argc, const char **argv);
 };
 
 #endif

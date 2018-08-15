@@ -1,12 +1,12 @@
 #include <iostream>
 #include <boost/program_options.hpp>
 #include <boost/exception/diagnostic_information.hpp>
+#include <const.h>
 #include "sender_parameters_parser.h"
-#include "const.h"
 
 namespace po = boost::program_options;
 
-ServerParameters ServerParametersParser::parse(int argc, const char **argv) {
+SenderParameters SenderParametersParser::parse(int argc, const char **argv) {
   po::options_description desc("Sender options");
   desc.add_options()
     (",h", "help")
@@ -19,7 +19,7 @@ ServerParameters ServerParametersParser::parse(int argc, const char **argv) {
     (",n", po::value<std::string>()->default_value(RECEIVER_NAME), "receiver name")
   ;
 
-  ServerParameters serverParameters;
+  SenderParameters sender_parameters;
   try {
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -27,20 +27,20 @@ ServerParameters ServerParametersParser::parse(int argc, const char **argv) {
 
     if (vm.count("h")) {
       std::cout << desc << "\n";
-      return serverParameters;
+      return sender_parameters;
     }
 
-    serverParameters.mcast_addr = vm["-a"].as<std::string>();
-    serverParameters.data_port = vm["-P"].as<uint16_t>();
-    serverParameters.ctrl_port = vm["-C"].as<uint16_t>();
-    serverParameters.packet_size = vm["-p"].as<int>();
-    serverParameters.fifo_size = vm["-f"].as<int>();
-    serverParameters.rtime = vm["-R"].as<int>();
-    serverParameters.receiver_name = vm["-n"].as<std::string>();
+    sender_parameters.mcast_addr = vm["-a"].as<std::string>();
+    sender_parameters.data_port = vm["-P"].as<uint16_t>();
+    sender_parameters.ctrl_port = vm["-C"].as<uint16_t>();
+    sender_parameters.packet_size = vm["-p"].as<int>();
+    sender_parameters.fifo_size = vm["-f"].as<int>();
+    sender_parameters.rtime = vm["-R"].as<int>();
+    sender_parameters.receiver_name = vm["-n"].as<std::string>();
 
   } catch (std::exception &err) {
     std::cerr << err.what() << std::endl;
     exit(1);
   }
-  return serverParameters;
+  return sender_parameters;
 }
