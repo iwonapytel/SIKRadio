@@ -8,14 +8,17 @@
 class StreamingController {
 private:
   SenderParameters params;
-  int current_packet_id = 0;
-  int session_id;
+  uint64_t current_first_byte = 0;
+  uint64_t session_id;
   int streaming_socket;
-  int SafeFIFO *safe_fifo;
+  int input_fdes = STDIN_FD;
+  SafeFIFO *safe_fifo;
 
 public:
-  StreamingController(SenderParameters senderParameters, SafeFIFO *safe_fifo);
-  void start();
+  StreamingController(SenderParameters sender_parameters, SafeFIFO *safe_fifo,
+    uint64_t session_id);
+  void run();
+  void setup();
 };
 
 #endif

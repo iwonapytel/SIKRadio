@@ -10,13 +10,14 @@
 
 extern int sys_nerr;
 
-void syserr(const char *fmt, int err, ...)
+void syserr(const char *fmt, ...)
 {
   va_list fmt_args;
+  int err = errno;
 
   fprintf(stderr, "ERROR: ");
 
-  va_start(fmt_args, err);
+  va_start(fmt_args, fmt);
   vfprintf(stderr, fmt, fmt_args);
   va_end (fmt_args);
   fprintf(stderr," (%d; %s)\n", err, strerror(err));
@@ -37,15 +38,16 @@ void fatal(const char *fmt, ...)
   exit(1);
 }
 
-void syslog(const char *fmt, int err, ...)
+void syslogger(const char *fmt, ...)
 {
   va_list fmt_args;
+  int err = errno;
 
   fprintf(stderr, "ERROR: ");
 
-  va_start(fmt_args, err);
+  va_start(fmt_args, fmt);
   vfprintf(stderr, fmt, fmt_args);
   va_end (fmt_args);
-  fprintf(stderr," (%d; %s)\n", blad, strerror(err));
+  fprintf(stderr," (%d; %s)\n", err, strerror(err));
   exit(1);
 }

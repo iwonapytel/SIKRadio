@@ -1,0 +1,38 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/err.h
+
+/home/iwona/uni/SIK/zadania2018/zadanie2/src/receiver/sik_receiver.cpp
+iostream
+-
+chrono
+-
+boost/program_options.hpp
+-
+
+/home/iwona/uni/SIK/zadania2018/zadanie2/src/utils/err.cpp
+stdio.h
+-
+stdlib.h
+-
+unistd.h
+-
+stdarg.h
+-
+errno.h
+-
+sys/types.h
+-
+sys/wait.h
+-
+string.h
+-
+err.h
+-
+
