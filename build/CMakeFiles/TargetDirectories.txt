@@ -1,4 +1,0 @@
-/home/iwona/uni/SIK/zadania2018/zadanie2/build/CMakeFiles/edit_cache.dir
-/home/iwona/uni/SIK/zadania2018/zadanie2/build/CMakeFiles/rebuild_cache.dir
-/home/iwona/uni/SIK/zadania2018/zadanie2/build/CMakeFiles/sikradio-receiver.dir
-/home/iwona/uni/SIK/zadania2018/zadanie2/build/CMakeFiles/sikradio-sender.dir
