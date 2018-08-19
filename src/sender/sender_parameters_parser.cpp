@@ -16,7 +16,7 @@ SenderParameters SenderParametersParser::parse(int argc, const char **argv) {
     (",p", po::value<int>()->default_value(PSIZE), "packet size (bytes)")
     (",f", po::value<int>()->default_value(FSIZE), "fifo size (kilobytes)")
     (",R", po::value<int>()->default_value(RTIME), "retransmission time (miliseconds)")
-    (",n", po::value<std::string>()->default_value(RECEIVER_NAME), "receiver name")
+    (",n", po::value<std::string>()->default_value(SENDER_NAME), "sender name")
   ;
 
   SenderParameters sender_parameters;
@@ -36,7 +36,7 @@ SenderParameters SenderParametersParser::parse(int argc, const char **argv) {
     sender_parameters.packet_size = vm["-p"].as<int>();
     sender_parameters.fifo_size = vm["-f"].as<int>();
     sender_parameters.rtime = vm["-R"].as<int>();
-    sender_parameters.receiver_name = vm["-n"].as<std::string>();
+    sender_parameters.sender_name = vm["-n"].as<std::string>();
 
   } catch (std::exception &err) {
     std::cerr << err.what() << std::endl;

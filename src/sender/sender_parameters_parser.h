@@ -10,7 +10,7 @@ struct SenderParameters {
   int packet_size;
   int fifo_size;
   int rtime;
-  std::string receiver_name;
+  std::string sender_name;
 };
 
 class SenderParametersParser {

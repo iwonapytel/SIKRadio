@@ -1,4 +1,4 @@
-void print_vec(std::vector<int> vec) {
+void print_vec(std::vector<uint64_t> vec) {
   for (auto it = vec.begin(); it != vec.end(); ++it) {
     std::cout << *it << " ";
   }
@@ -6,7 +6,7 @@ void print_vec(std::vector<int> vec) {
 }
 
 void safe_set_test() {
-  SafeSet<int> safe_set;
+  SafeSet safe_set;
   safe_set.add(1);
   safe_set.add(2);
   safe_set.add(3);

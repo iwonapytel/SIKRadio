@@ -1,3 +1,6 @@
+#ifndef MAIN_CONTROLLER_H
+#define MAIN_CONTROLLER_H
+
 #include <thread_safe_structures.h>
 #include "sender_parameters_parser.h"
 
@@ -6,11 +9,15 @@ private:
   SenderParameters params;
   SafeFIFO *safe_fifo;
   SafeSet *safe_set;
+  int listening_socket;
+  std::string reply_msg;
 
 public:
-  MainController(SenderParameters params, SafeSet safe_set);
+  MainController(SenderParameters params, SafeSet *safe_set);
 
   void setup();
 
   void run();
-}
+};
+
+#endif

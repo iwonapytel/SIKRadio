@@ -6,22 +6,21 @@
 #include <set>
 #include <mutex>
 
-template<typename T>
 class SafeSet {
 private:
   std::mutex mutex;
-  std::set<T> set;
+  std::set<uint64_t> set;
 public:
   SafeSet() {};
 
-  void add(T element) {
+  void add(uint64_t element) {
     std::unique_lock<std::mutex> lock(this->mutex);
     set.insert(element);
   }
 
-  std::vector<T> get_all() {
+  std::vector<uint64_t> get_all() {
     std::unique_lock<std::mutex> lock(this->mutex);
-    std::vector<T> vec;
+    std::vector<uint64_t> vec;
     std::copy(set.begin(), set.end(), std::back_inserter(vec));
     set.clear();
     return vec;
