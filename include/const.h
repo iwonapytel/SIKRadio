@@ -15,5 +15,6 @@
 #define DISCOVER_ADDR "255.255.255.255"
 #define MAIN_CONTROLLER_BUF 100
 #define STDIN_FD 0
+#define MAX_TTL 255
 
 #endif

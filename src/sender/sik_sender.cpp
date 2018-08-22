@@ -11,7 +11,9 @@
 
 int main(int argc, const char *argv[]) {
     SenderParametersParser parser;
-    SenderParameters sender_parameters = parser.parse(argc, argv);
+    SenderParameters params = parser.parse(argc, argv);
+    SafeSet safe_set();
+    SafeFIFO safe_fifo(params.fifo_size, params.packet_size);
     // MCAST_ADDR, -a nodefault
     // DATA_PORT, -P default 20730
     // CTRL_PORT -C default 30730
@@ -21,5 +23,10 @@ int main(int argc, const char *argv[]) {
     // NAZWA -n "Nienazwany Nadajnik"
     safe_set_test();
     safe_fifo_test();
+    //MainController main_controller(params, &safe_set).run();
+    //RetransmissionController retransmission_controller(&)
+    //StreamingController streaming_controller()
+
+
     return 0;
 }

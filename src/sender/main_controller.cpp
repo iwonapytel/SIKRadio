@@ -8,6 +8,9 @@
 #include <unistd.h>
 #include <sstream>
 #include <const.h>
+#include <boost/algorithm/string.hpp>
+#include <stdexcept>
+#include <thread>
 #include "main_controller.h"
 
 MainController::MainController(SenderParameters params, SafeSet *safe_set):
@@ -20,14 +23,14 @@ MainController::MainController(SenderParameters params, SafeSet *safe_set):
 
 void MainController::setup() {
   // Setup listening addr struct
-  sockaddr_in listening_addr;
+  struct sockaddr_in listening_addr;
   memset(&listening_addr, 0, sizeof(listening_addr));
   listening_addr.sin_family = AF_INET;
   listening_addr.sin_port = htons(params.ctrl_port);
-  listening_addr.sin_addr = htonl(INADDR_ANY);
+  listening_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   // Setup listening socket
-  if (listening_socket = sock(AF_INET, SOCK_DGRAM, 0) < 0)
+  if (listening_socket = socket(AF_INET, SOCK_DGRAM, 0) < 0)
     syserr("MainController: create listening socket");
 
   int optval = 1;
@@ -41,28 +44,61 @@ void MainController::setup() {
   if (setsockopt(listening_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl));
     syserr("MainController: setsockopt ip_multicast");
 
-  if (bind(listening_socket, &listening_addr, sizeof(listening_addr)));
-    syserr("MainController: bind socket")
+  if (bind(listening_socket, (struct sockaddr*) &listening_addr, sizeof(listening_addr)));
+    syserr("MainController: bind socket");
 }
 
 void MainController::run() {
   struct sockaddr_in receiver_addr;
+  socklen_t socklen = sizeof(receiver_addr);
   char buffer[MAIN_CONTROLLER_BUF];
-  memset(&receiver_addr, 0, sizeof(receiver_addr));
-  memset(&buffer, 0, sizeof(buffer));
+  int nbytes;
 
   std::thread([&] {
     while (true) {
-        if (nbytes = recvfrom(listening_socket, &buffer, sizeof(buffer),
-           (struct sockaddr*) &receiver_addr, sizeof(receiver_addr)) < 0)
+      memset(&receiver_addr, 0, sizeof(receiver_addr));
+      memset(&buffer, 0, sizeof(buffer));
+
+      if (nbytes = recvfrom(listening_socket, &buffer, sizeof(buffer)-1, 0,
+          (struct sockaddr*) &receiver_addr, &socklen) < 0)
           syserr("MainController: recvfrom");
 
+      if (!strncmp(buffer, LOOKUP, strlen(LOOKUP))) {
+        if (sendto(listening_socket, reply_msg.c_str(),
+            reply_msg.size(), 0, (struct sockaddr*) &receiver_addr,
+            socklen) < reply_msg.size())
+              syslogger("MainController: sendto");
+        }
 
-
+        if (!strncmp(buffer, REXMIT, strlen(REXMIT))) {
+          buffer[nbytes] = '\0';
+          auto requests = parse_requests(std::string(buffer));
+          for (auto &r: requests) {
+              safe_set->add(r);
+        }
+      }
     }
   }).detach();
 }
 
-std::vector<std::string> parse_request(std::string str) {
-  
+std::vector<uint64_t> MainController::parse_requests(std::string str) {
+  std::vector<uint64_t> requests;
+  std::vector<std::string> splitted;
+  boost::split(splitted, str, boost::is_any_of(", "));
+
+  for (auto it = std::next(splitted.begin()); it != splitted.end(); it++) {
+    uint64_t req;
+    try {
+      req = stoll(*it);
+    } catch(std::invalid_argument &e) {
+      syslogger("MainController: parse_request invalid argument");
+      continue;
+    } catch(std::out_of_range &e) {
+      syslogger("MainController: parse_request argument ouf of range");
+      continue;
+    }
+    requests.push_back(req);
+  }
+
+  return requests;
 }

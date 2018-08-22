@@ -8,8 +8,6 @@
 #include <unistd.h>
 #include "streaming_controller.h"
 
-#define MAX_TTL 255
-
 
 StreamingController::StreamingController(SenderParameters sender_parameters,
                                          SafeFIFO* safe_fifo,

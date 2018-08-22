@@ -12,6 +12,8 @@ private:
   int listening_socket;
   std::string reply_msg;
 
+  std::vector<uint64_t> parse_requests(std::string str);
+
 public:
   MainController(SenderParameters params, SafeSet *safe_set);
 
