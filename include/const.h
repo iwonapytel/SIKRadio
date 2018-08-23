@@ -8,6 +8,7 @@
 #define FSIZE 131072      // Sender's FIFO size
 #define RTIME 250         // Retransmission time
 #define BSIZE 65536       // Receiver's buffer size
+#define UI_PORT 10730
 #define SENDER_NAME "Nienazwany Nadajnik"
 #define LOOKUP "ZERO_SEVEN_COME_IN"
 #define REPLY "BOREWICZ_HERE"

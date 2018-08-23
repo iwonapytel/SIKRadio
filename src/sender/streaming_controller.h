@@ -10,11 +10,11 @@ private:
   SenderParameters params;
   uint64_t current_first_byte = 0;
   uint64_t session_id;
-  int streaming_socket;
   int input_fdes = STDIN_FD;
   SafeFIFO *safe_fifo;
 
 public:
+  int streaming_socket;
   StreamingController(SenderParameters sender_parameters, SafeFIFO *safe_fifo,
     uint64_t session_id);
   void run();

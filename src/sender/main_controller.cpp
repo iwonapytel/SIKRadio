@@ -19,6 +19,7 @@ MainController::MainController(SenderParameters params, SafeSet *safe_set):
   ss << REPLY << " " << params.mcast_addr << " " << params.data_port
      << " " << params.sender_name;
   reply_msg = ss.str();
+  this->setup();
 };
 
 void MainController::setup() {
@@ -30,7 +31,7 @@ void MainController::setup() {
   listening_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
   // Setup listening socket
-  if (listening_socket = socket(AF_INET, SOCK_DGRAM, 0) < 0)
+  if ((listening_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     syserr("MainController: create listening socket");
 
   int optval = 1;
@@ -41,26 +42,26 @@ void MainController::setup() {
     syserr("MainController: setsockopt so_broadcast");
 
   int ttl = MAX_TTL;
-  if (setsockopt(listening_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl));
+  if (setsockopt(listening_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl))
     syserr("MainController: setsockopt ip_multicast");
 
-  if (bind(listening_socket, (struct sockaddr*) &listening_addr, sizeof(listening_addr)));
+  if (bind(listening_socket, (struct sockaddr*) &listening_addr, sizeof(listening_addr)))
     syserr("MainController: bind socket");
 }
 
 void MainController::run() {
-  struct sockaddr_in receiver_addr;
-  socklen_t socklen = sizeof(receiver_addr);
-  char buffer[MAIN_CONTROLLER_BUF];
-  int nbytes;
-
   std::thread([&] {
+    struct sockaddr_in receiver_addr{};
+    socklen_t socklen = sizeof(receiver_addr);
+    char buffer[MAIN_CONTROLLER_BUF];
+    int nbytes;
+
     while (true) {
       memset(&receiver_addr, 0, sizeof(receiver_addr));
-      memset(&buffer, 0, sizeof(buffer));
+      memset(buffer, 0, MAIN_CONTROLLER_BUF);
 
-      if (nbytes = recvfrom(listening_socket, &buffer, sizeof(buffer)-1, 0,
-          (struct sockaddr*) &receiver_addr, &socklen) < 0)
+      if ((nbytes = recvfrom(listening_socket, buffer, sizeof(buffer)-1, 0,
+          (struct sockaddr*) &receiver_addr, &socklen)) <= 0)
           syserr("MainController: recvfrom");
 
       if (!strncmp(buffer, LOOKUP, strlen(LOOKUP))) {
@@ -70,7 +71,7 @@ void MainController::run() {
               syslogger("MainController: sendto");
         }
 
-        if (!strncmp(buffer, REXMIT, strlen(REXMIT))) {
+      if (!strncmp(buffer, REXMIT, strlen(REXMIT))) {
           buffer[nbytes] = '\0';
           auto requests = parse_requests(std::string(buffer));
           for (auto &r: requests) {

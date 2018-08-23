@@ -25,12 +25,11 @@ void StreamingController::setup() {
 
   streaming_addr.sin_family = AF_INET;
   streaming_addr.sin_port = htons(params.data_port);
-  if (inet_aton((params.mcast_addr).c_str(), &streaming_addr.sin_addr) == 0);
+  if (inet_aton((params.mcast_addr).c_str(), &streaming_addr.sin_addr) == 0)
     syserr("StreamingController: inet_aton");
 
   // Setup socket
-  streaming_socket = socket(AF_INET, SOCK_DGRAM, 0);
-  if (streaming_socket < 0)
+  if ((streaming_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     syserr("StreamingController: creating socket");
 
   int optval = 1;
@@ -41,20 +40,25 @@ void StreamingController::setup() {
     syserr("StreamingController: setsockopt so_broadcast");
 
   int ttl = MAX_TTL;
-  if (setsockopt(streaming_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl));
+  if (setsockopt(streaming_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl))
     syserr("StreamingController: setsockopt ip_multicast");
 
-  connect(streaming_socket, (struct sockaddr*) &streaming_addr, sizeof(streaming_addr));
+  if (connect(streaming_socket, (struct sockaddr*) &streaming_addr, sizeof(streaming_addr)))
+    syserr("StreamingController: setsockopt connect");
 }
 
 void StreamingController::run() {
     char buffer[params.packet_size];
+    bzero(buffer, sizeof(buffer));
     int nbytes;
     struct Packet* audio_packet =
       (struct Packet*) malloc(sizeof(struct Packet) + params.packet_size);
+    audio_packet->first_byte_num = htobe64(current_first_byte);
 
+    while (nbytes = read(input_fdes, buffer, params.packet_size)) {
+        if (nbytes != params.packet_size)
+          continue;
 
-    while (nbytes = read(input_fdes, &buffer, params.packet_size) == params.packet_size) {
         audio_packet->session_id = htobe64(session_id);
         audio_packet->first_byte_num = htobe64(current_first_byte);
 

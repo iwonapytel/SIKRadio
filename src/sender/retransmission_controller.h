@@ -13,10 +13,10 @@ private:
 public:
   RetransmissionController(SafeSet *requests_buff, SafeFIFO *safe_fifo,
                           SenderParameters parameters, int socket) :
-                                                    requests_buff(requests_buff),
-                                                    safe_fifo(safe_fifo),
-                                                    rtime(parameters.rtime),
-                                                    socket(socket) {}
+                            requests_buff(requests_buff),
+                            safe_fifo(safe_fifo),
+                            rtime(parameters.rtime),
+                            socket(socket) {}
 
   void run();
 };
