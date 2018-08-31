@@ -15,6 +15,7 @@ ReceiverParameters ReceiverParametersParser::parse(int argc, const char **argv) 
     (",U", po::value<uint16_t>()->default_value(UI_PORT), "UI port")
     (",b", po::value<int>()->default_value(BSIZE), "buffer size (bytes)")
     (",R", po::value<int>()->default_value(RTIME), "queries for missing packets time")
+    (",n", po::value<std::string>()->default_value(""), "default station name")
   ;
 
   ReceiverParameters receiver_parameters;
@@ -33,6 +34,7 @@ ReceiverParameters ReceiverParametersParser::parse(int argc, const char **argv) 
     receiver_parameters.ui_port = vm["-U"].as<uint16_t>();
     receiver_parameters.buffer_size = vm["-b"].as<int>();
     receiver_parameters.rtime = vm["-R"].as<int>();
+    receiver_parameters.default_station_name = vm["-n"].as<std::string>();
 
   } catch (std::exception &err) {
     std::cerr << err.what() << std::endl;

@@ -9,6 +9,7 @@ struct ReceiverParameters {
   uint16_t ui_port; //-U
   int buffer_size; //-b
   int rtime; //-R
+  std::string default_station_name; //-n
 };
 
 class ReceiverParametersParser {

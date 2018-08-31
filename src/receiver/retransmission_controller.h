@@ -1,13 +1,13 @@
-#ifndef DISCOVER_CONTROLLER_H
-#define DISCOVER_CONTROLLER_H
+#ifndef RETRANSMISSION_CONTROLLER_H
+#define RETRANSMISSION_CONTROLLER_H
 
-class DiscoverController {
+class RetransmissionController {
 private:
 public:
-  DiscoverController();
+  RetransmissionController();
 
   void run();
   void setup();
-}
+};
 
 #endif
