@@ -4,6 +4,9 @@
 #include <iostream>
 #include <unistd.h>
 #include <ctime>
+#include <vector>
+#include <tuple>
+#include <netinet/in.h>
 #include "receiver_parameters_parser.h"
 
 
@@ -14,6 +17,7 @@ public:
   std::string station_name;
   std::time_t last_info;
   bool valid = true;
+  struct sockaddr_in address;
 
   StationInfo(std::string mcast_addr, uint16_t data_port, std::string station_name,
       std::time_t last_info):
@@ -41,7 +45,7 @@ public:
 
   void run();
   void setup();
-  StationInfo parse_reply(char* msg);
+  StationInfo parse_reply(std::string msg);
 };
 
 #endif

@@ -10,7 +10,9 @@
 #include "discover_controller.h"
 
 DiscoverController::DiscoverController(ReceiverParameters params):
-  params(params) {}
+  params(params) {
+    this->setup();
+  }
 
 void DiscoverController::run() {
   std::thread([&] {
@@ -19,10 +21,11 @@ void DiscoverController::run() {
       if (sendto(discover_socket, LOOKUP, msg_len, 0, (struct sockaddr*) &discover_sockaddr,
           sizeof(discover_sockaddr)) < msg_len)
         syserr("DiscoverController: sendto");
+      syslogger("DiscoverController: LOOKUP");
 
       std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVER_TIME));
     }
-  });
+  }).detach();
 }
 
 void DiscoverController::setup() {
@@ -48,7 +51,7 @@ void DiscoverController::setup() {
     syserr("DiscoverController: setsockopt so_broadcast");
 }
 
-StationInfo parse_reply(std::string str) {
+StationInfo DiscoverController::parse_reply(std::string str) {
   StationInfo station;
   station.valid = false;
   struct in_addr addr;

@@ -45,7 +45,7 @@ void MainController::setup() {
   if (setsockopt(listening_socket, IPPROTO_IP, IP_MULTICAST_TTL, &ttl, sizeof ttl))
     syserr("MainController: setsockopt ip_multicast");
 
-  if (bind(listening_socket, (struct sockaddr*) &listening_addr, sizeof(listening_addr)))
+  if (bind(listening_socket, (struct sockaddr*) &listening_addr, sizeof(listening_addr)) < 0)
     syserr("MainController: bind socket");
 }
 
@@ -69,7 +69,8 @@ void MainController::run() {
             reply_msg.size(), 0, (struct sockaddr*) &receiver_addr,
             socklen) < reply_msg.size())
               syslogger("MainController: sendto");
-        }
+        syslogger("MainController: sending lookup message");
+      }
 
       if (!strncmp(buffer, REXMIT, strlen(REXMIT))) {
           buffer[nbytes] = '\0';

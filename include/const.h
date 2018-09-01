@@ -20,5 +20,7 @@
 #define MAX_TTL 255
 #define DISCOVER_TIME 5000
 #define MAX_SHORT 65535
+#define REPLY_MSG_MAX 110
+#define LOOKUP_TIMEOUT 20
 
 #endif
