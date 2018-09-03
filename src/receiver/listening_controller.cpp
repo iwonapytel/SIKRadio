@@ -20,7 +20,12 @@ void ListeningController::run() {
     }
 
     if (sockets[1].revents & POLLIN) {
+      syslogger("ListeningController: got Packet");
       radio_data_event(sockets[1].fd, sockets[1].revents);
+    }
+
+    if (sockets[2].revents & POLLOUT) {
+        syslogger("socket stdout");
     }
   }
   if (p == -1)
@@ -31,8 +36,9 @@ void ListeningController::restart(Restart restart) {
   syslogger("ListeningController: Restart");
   status = Status::OFF;
   clean_session();
-  sockets[2].events = 0;
   drop_connection();
+  sockets[2].events = 0;
+  sockets[1].events = 0;
   StationInfo new_station = StationInfo();
   new_station.valid = false;
 
@@ -59,6 +65,7 @@ void ListeningController::restart(Restart restart) {
     sockets[1].events = POLLIN;
     status = Status::INITIALIZED;
     session_info.station = new_station;
+    listening_socket = sockets[1].fd;
     retransmission_ctrl.restart(new_station);
   }
 }
@@ -76,7 +83,6 @@ void ListeningController::remove_timeouts() {
       if (to_erase == session_info.station) {
         restart(Restart::FIRST);
       }
-
     } else {
       it++;
     }
@@ -113,7 +119,7 @@ void ListeningController::update_stations(std::string buffer, sockaddr_in addres
     for (;it != stations.end(); it++) {
       if (*it == station) {
         syslogger("Updating time");
-        station.last_info = now;
+        (*it).last_info = now;
         break;
       }
     }
@@ -161,9 +167,11 @@ void ListeningController::drop_connection() {
   if (listening_socket == -1) {
     return;
   }
+  printf("fd: %d\n", listening_socket);
   if (setsockopt(listening_socket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (void*) &mreq, sizeof(mreq)))
     syserr("ListeningController: drop connection");
   close(listening_socket);
+  listening_socket = -1;
 }
 
 int ListeningController::create_connection(StationInfo station_info) {
@@ -206,4 +214,5 @@ ListeningController::ListeningController(ReceiverParameters params, DiscoverCont
     session_info = SessionInfo();
     status = Status::OFF;
     this->setup();
+    this->clean_session();
 }

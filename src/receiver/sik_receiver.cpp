@@ -9,7 +9,7 @@ int main(int argc, const char *argv[]) {
   ReceiverParametersParser parser;
   ReceiverParameters params = parser.parse(argc, argv);
   DiscoverController discover_controller(params);
-  RetransmissionController retransmission_controller;
+  RetransmissionController retransmission_controller(params);
   ListeningController listening_controller(params, discover_controller,
     retransmission_controller);
 
