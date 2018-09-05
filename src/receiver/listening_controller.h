@@ -3,6 +3,7 @@
 
 #include <poll.h>
 #include <netinet/in.h>
+#include <audio_packet.h>
 #include "discover_controller.h"
 #include "retransmission_controller.h"
 #include "buffer.h"
@@ -59,8 +60,8 @@ public:
   void setup();
   void clean_session();
   void update_stations(std::string buffer, sockaddr_in sockaddr);
-  void discover_event(int socket, uint16_t event);
-  void radio_data_event(int socket, uint16_t event);
+  void discover_event(int socket);
+  void radio_data_event(int socket);
   void drop_connection();
   int  create_connection(StationInfo station_info);
   void remove_timeouts();

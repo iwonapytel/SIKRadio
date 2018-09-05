@@ -9,22 +9,15 @@
 #include "main_controller.h"
 #include "primitive_test.h"
 
-// MCAST_ADDR, -a nodefault
-// DATA_PORT, -P default 20730
-// CTRL_PORT -C default 30730
-// PSIZE -p default 512B
-// FSIZE -f defualt 128kB
-// RTIME -R 250
-// NAZWA -n "Nienazwany Nadajnik"
-
 int main(int argc, const char *argv[]) {
     SenderParametersParser parser;
     SenderParameters params = parser.parse(argc, argv);
     SafeSet safe_set;
     SafeFIFO safe_fifo(params.fifo_size, params.packet_size);
 
-    safe_set_test();
-    safe_fifo_test();
+    //safe_set_test();
+    //safe_fifo_test();
+
     uint64_t session_id = std::time(0);
 
     MainController

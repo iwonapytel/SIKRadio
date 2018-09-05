@@ -69,10 +69,11 @@ void MainController::run() {
             reply_msg.size(), 0, (struct sockaddr*) &receiver_addr,
             socklen) < reply_msg.size())
               syslogger("MainController: sendto");
-        syslogger("MainController: sending lookup message");
+        syslogger("MainController: sending reply message");
       }
 
       if (!strncmp(buffer, REXMIT, strlen(REXMIT))) {
+          syslogger("MainController: got rexmit message");
           buffer[nbytes] = '\0';
           auto requests = parse_requests(std::string(buffer));
           for (auto &r: requests) {

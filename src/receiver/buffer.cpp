@@ -16,18 +16,18 @@ void Buffer::add(const char* packet, int first_byte) {
   }
 }
 
-void Buffer::clean(int packet_size) {
+void Buffer::clear(int packet_size) {
   this->first = 0;
   this->packet_size = packet_size;
 
-  memset(data, 0, sizeof(data));
+  memset(audio_data, 0, sizeof(audio_data));
   memset(data_id, 0, sizeof(data_id));
   memset(id_exists, 0, sizeof(id_exists));
 }
 
 std::pair<char*, int> Buffer::read() {
   if (!id_exists[first])
-    return std::pair<char*, int>(nullptr, 0)
+    return std::pair<char*, int>(nullptr, 0);
 
   int read_count = 0;
   for (int i = first; i < size - 1; ++i) {

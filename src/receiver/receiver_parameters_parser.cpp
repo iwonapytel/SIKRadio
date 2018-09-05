@@ -9,7 +9,7 @@
 namespace po = boost::program_options;
 
 void ReceiverParametersParser::check_params(ReceiverParameters params) {
-  if (params.ui_port < 1024 || params.ctrl_port < 1024)
+  if (params.ui_port <= 1024 || params.ctrl_port <= 1024)
     syserr("Port numbers < 1024 restricted to the root user only");
   if (params.ui_port == params.ctrl_port)
     syserr("UI port and control port need to be different");

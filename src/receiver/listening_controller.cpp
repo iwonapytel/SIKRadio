@@ -18,12 +18,12 @@ void ListeningController::run() {
 
     if (sockets[0].revents & POLLIN) {
       syslogger("ListeningController: got REPLY");
-      discover_event(sockets[0].fd, sockets[0].revents);
+      discover_event(sockets[0].fd);
     }
 
     if (sockets[1].revents & POLLIN) {
       syslogger("ListeningController: got Packet");
-      radio_data_event(sockets[1].fd, sockets[1].revents);
+      radio_data_event(sockets[1].fd);
     }
 
     if (sockets[2].revents & POLLOUT) {
@@ -74,9 +74,10 @@ void ListeningController::restart(Restart restart) {
 
 void ListeningController::remove_timeouts() {
   auto now = std::time(nullptr);
-  syslogger("ListeningController: remove timeouts");
   int size = stations.size();
-  printf("stations: %d\n", size);
+
+  fprintf(stderr, "LOG: %d discovered stations\n", size);
+
   for (auto it = stations.begin(); it != stations.end();) {
     if ((now - it->last_info) > LOOKUP_TIMEOUT) {
       syslogger("ListeningController: removing timeout");
@@ -91,7 +92,7 @@ void ListeningController::remove_timeouts() {
   }
 }
 
-void ListeningController::discover_event(int socket, uint16_t event) {
+void ListeningController::discover_event(int socket) {
   char buffer[REPLY_MSG_MAX];
   memset(&buffer, 0, sizeof(buffer));
   sockaddr_in server_addr;
@@ -134,11 +135,46 @@ void ListeningController::update_stations(std::string buffer, sockaddr_in addres
   }
 }
 
-void ListeningController::radio_data_event(int socket, uint16_t event) {
-  //buffer[]
-  //recvfrom();
-  if (status == Status::INITIALIZED) {
+void ListeningController::radio_data_event(int socket) {
+  memset(packet_buffer, 0, sizeof(packet_buffer));
+  int bytes;
 
+  if ((bytes = read(socket, packet_buffer, MAX_SHORT)) < 0)
+    syserr("ListeningController: read packet");
+
+  Packet *packet = reinterpret_cast<Packet*>(packet_buffer);
+  packet->session_id = be64toh(packet->session_id);
+  packet->first_byte_num = be64toh(packet->first_byte_num);
+
+  int packet_size = bytes - sizeof(Packet);
+
+  if (status == Status::INITIALIZED) {
+    status = Status::ON;
+    buffer->clear(packet_size);
+
+    session_info.first_byte = packet->first_byte_num;
+    session_info.session_id = packet->session_id;
+    session_info.last_packet = session_info.first_byte;
+    session_info.packet_size = packet_size;
+  }
+
+  if (packet->session_id > session_info.session_id)
+    restart(Restart::FIRST);
+
+  if (packet->session_id < session_info.session_id || packet_size != session_info.packet_size)
+    return;
+
+  if (status == Status::ON) {
+    if (packet->first_byte_num > session_info.last_packet + session_info.packet_size) {
+      uint64_t start = session_info.last_packet + session_info.packet_size;
+      uint64_t end = packet->first_byte_num;
+
+      retransmission_ctrl.add(start, end, session_info.packet_size);
+    } else if (packet->first_byte_num < session_info.last_packet) {
+      retransmission_ctrl.remove(packet->first_byte_num);
+    }
+
+    buffer->add(packet->audio_data, packet->first_byte_num);
   }
 }
 
@@ -170,10 +206,11 @@ void ListeningController::clean_session() {
 }
 
 void ListeningController::drop_connection() {
-  if (listening_socket == -1) {
+  if (listening_socket == -1)
     return;
-  }
-  printf("fd: %d\n", listening_socket);
+
+  syslogger("ListeningController: dropping connection");
+
   if (setsockopt(listening_socket, IPPROTO_IP, IP_DROP_MEMBERSHIP, (void*) &mreq, sizeof(mreq)))
     syserr("ListeningController: drop connection");
   close(listening_socket);
@@ -182,6 +219,8 @@ void ListeningController::drop_connection() {
 
 int ListeningController::create_connection(StationInfo station_info) {
   // Setup socket
+  syslogger("ListeningController: creating connection");
+
   if ((listening_socket = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     syserr("ListeningController: creating socket");
 

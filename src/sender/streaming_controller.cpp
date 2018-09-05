@@ -25,6 +25,10 @@ void StreamingController::setup() {
 
   streaming_addr.sin_family = AF_INET;
   streaming_addr.sin_port = htons(params.data_port);
+
+  if (!IN_MULTICAST(ntohl(inet_addr((params.mcast_addr).c_str()))))
+    syserr("Given parameter is not a multicast address");
+
   if (inet_aton((params.mcast_addr).c_str(), &streaming_addr.sin_addr) == 0)
     syserr("StreamingController: inet_aton");
 

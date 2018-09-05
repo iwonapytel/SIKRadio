@@ -1,6 +1,10 @@
 #ifndef RECEIVER_BUFFER_H
 #define RECEIVER_BUFFER_H
 
+#include <utility>
+#include <cstring>
+#include <iostream>
+
 class Buffer {
 private:
   int packet_size;
@@ -28,9 +32,9 @@ public:
   }
 
   void add(const char* packet, int first_byte);
-  void clean(int packet_size);
-  void read();
-  void update();
+  void clear(int packet_size);
+  std::pair<char*, int> read();
+  void update(int read_count);
 };
 
 #endif

@@ -8,7 +8,7 @@
 namespace po = boost::program_options;
 
 void SenderParametersParser::check_params(SenderParameters params) {
-  if (params.data_port < 1024 || params.ctrl_port < 1024)
+  if (params.data_port <= 1024 || params.ctrl_port <= 1024)
     syserr("Port numbers < 1024 restricted to the root user only");
   if (params.data_port == params.ctrl_port)
     syserr("Data port and control port need to be different");
