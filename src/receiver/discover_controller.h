@@ -29,8 +29,8 @@ public:
   StationInfo() {};
 
   friend bool operator==(const StationInfo& x, const StationInfo& y) {
-    return std::tie(x.mcast_addr, x.data_port, x.station_name)
-      == std::tie(y.mcast_addr, y.data_port, y.station_name);
+    return std::tie(x.mcast_addr, x.station_name)
+      == std::tie(y.mcast_addr, y.station_name);
   }
 };
 
@@ -38,7 +38,6 @@ class DiscoverController {
 private:
   ReceiverParameters params;
   struct sockaddr_in discover_sockaddr;
-  //int parse_station(struct StationStruct *station_info);
 public:
   int discover_socket;
   DiscoverController(ReceiverParameters params);

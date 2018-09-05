@@ -15,6 +15,7 @@ struct ReceiverParameters {
 class ReceiverParametersParser {
 public:
   ReceiverParameters parse(int argc, const char **argv);
+  void check_params(ReceiverParameters params);
 };
 
 #endif

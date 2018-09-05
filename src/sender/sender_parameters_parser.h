@@ -16,6 +16,7 @@ struct SenderParameters {
 class SenderParametersParser {
 public:
   SenderParameters parse(int argc, const char **argv);
+  void check_params(SenderParameters params);
 };
 
 #endif

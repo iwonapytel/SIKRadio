@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include "discover_controller.h"
 #include "retransmission_controller.h"
+#include "buffer.h"
 
 enum Restart {
   FIRST,
@@ -37,6 +38,8 @@ public:
 
 class ListeningController {
 private:
+  Buffer *buffer;
+  char *packet_buffer;
   int discover_socket;
   int listening_socket;
   DiscoverController &discover_ctrl;
@@ -47,9 +50,11 @@ private:
   ReceiverParameters params;
   std::vector<StationInfo> stations;
   Status status;
+
 public:
   ListeningController(ReceiverParameters params, DiscoverController &discover_ctrl,
     RetransmissionController &retransmission_ctrl);
+  ~ListeningController();
   void run();
   void setup();
   void clean_session();

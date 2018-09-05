@@ -21,8 +21,8 @@ void DiscoverController::run() {
       if (sendto(discover_socket, LOOKUP, msg_len, 0, (struct sockaddr*) &discover_sockaddr,
           sizeof(discover_sockaddr)) < msg_len)
         syserr("DiscoverController: sendto");
-      syslogger("DiscoverController: LOOKUP");
 
+      syslogger("DiscoverController: LOOKUP");
       std::this_thread::sleep_for(std::chrono::milliseconds(DISCOVER_TIME));
     }
   }).detach();

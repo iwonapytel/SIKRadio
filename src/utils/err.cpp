@@ -8,6 +8,8 @@
 #include <string.h>
 #include <err.h>
 
+// Inspired by: https://www.mimuw.edu.pl/~mengel/jpp/thr/err.c
+
 extern int sys_nerr;
 
 void syserr(const char *fmt, ...)

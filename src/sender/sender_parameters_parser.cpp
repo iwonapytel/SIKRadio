@@ -2,9 +2,25 @@
 #include <boost/program_options.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 #include <const.h>
+#include <err.h>
 #include "sender_parameters_parser.h"
 
 namespace po = boost::program_options;
+
+void SenderParametersParser::check_params(SenderParameters params) {
+  if (params.data_port < 1024 || params.ctrl_port < 1024)
+    syserr("Port numbers < 1024 restricted to the root user only");
+  if (params.data_port == params.ctrl_port)
+    syserr("Data port and control port need to be different");
+  if (params.packet_size <= 0)
+    syserr("Packet size argument require positive value");
+  if (params.fifo_size <= 0)
+    syserr("Fifo size argument require positive value");
+  if (params.rtime <= 0)
+    syserr("Rtime argument require positive value");
+  if (params.sender_name.size() <= 0 || params.sender_name.size() > 64)
+    syserr("Sender name require length between 1 and 64");
+}
 
 SenderParameters SenderParametersParser::parse(int argc, const char **argv) {
   po::options_description desc("Sender options");
@@ -42,5 +58,7 @@ SenderParameters SenderParametersParser::parse(int argc, const char **argv) {
     std::cerr << err.what() << std::endl;
     exit(1);
   }
+
+  check_params(sender_parameters);
   return sender_parameters;
 }

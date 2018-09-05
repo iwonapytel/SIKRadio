@@ -6,8 +6,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <cstring>
+#include "buffer.h"
 #include "listening_controller.h"
 #include "discover_controller.h"
+
 
 void ListeningController::run() {
   int p;
@@ -133,7 +135,11 @@ void ListeningController::update_stations(std::string buffer, sockaddr_in addres
 }
 
 void ListeningController::radio_data_event(int socket, uint16_t event) {
+  //buffer[]
+  //recvfrom();
+  if (status == Status::INITIALIZED) {
 
+  }
 }
 
 void ListeningController::setup() {
@@ -212,7 +218,14 @@ ListeningController::ListeningController(ReceiverParameters params, DiscoverCont
     discover_socket = this->discover_ctrl.discover_socket;
     listening_socket = -1;
     session_info = SessionInfo();
-    status = Status::OFF;
+    this->status = Status::OFF;
+    this->buffer = new Buffer(params.buffer_size);
+    this->packet_buffer = new char[MAX_SHORT];
     this->setup();
     this->clean_session();
+}
+
+ListeningController::~ListeningController() {
+  delete buffer;
+  delete packet_buffer;
 }

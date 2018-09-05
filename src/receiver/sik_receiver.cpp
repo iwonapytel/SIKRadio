@@ -4,6 +4,7 @@
 #include "retransmission_controller.h"
 #include "receiver_parameters_parser.h"
 #include "listening_controller.h"
+#include "buffer.h"
 
 int main(int argc, const char *argv[]) {
   ReceiverParametersParser parser;
