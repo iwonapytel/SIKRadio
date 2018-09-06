@@ -1,0 +1,6 @@
+mkdir build
+cd build
+cmake ..
+make
+
+pliki wykonywalne: sikradio-receiver i sikradio-sender

@@ -3,10 +3,42 @@
 #include <boost/exception/diagnostic_information.hpp>
 #include <const.h>
 #include <err.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #include "receiver_parameters_parser.h"
 
 
 namespace po = boost::program_options;
+
+bool check_is_broadcast_addr(std::string discover_addr) {
+  if (!strcmp(DISCOVER_ADDR, discover_addr.c_str()))
+    return true;
+
+  struct ifaddrs *ifa, *ifaddr;
+  bool is_broadcast = false;
+  if (getifaddrs(&ifaddr) < 0)
+    syslogger("getifaddr");
+
+  for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+    if (ifa->ifa_flags & IFF_BROADCAST &&
+        ifa->ifa_broadaddr != NULL &&
+        ifa->ifa_broadaddr->sa_family == AF_INET) {
+
+      struct sockaddr_in *sin = (struct sockaddr_in *) ifa->ifa_broadaddr;
+      const char* ip = inet_ntoa(sin->sin_addr);
+      //fprintf(stderr, "%s\n", ip);
+      if (!strcmp(ip, discover_addr.c_str()))
+        is_broadcast = true;
+        break;
+    }
+  }
+
+  freeifaddrs(ifaddr);
+  return is_broadcast;
+}
 
 void ReceiverParametersParser::check_params(ReceiverParameters params) {
   if (params.ui_port <= 1024 || params.ctrl_port <= 1024)
@@ -17,6 +49,9 @@ void ReceiverParametersParser::check_params(ReceiverParameters params) {
     syserr("Buffer size argument require positive value");
   if (params.rtime <= 0)
     syserr("Rtime argument require positive value");
+
+  if(!check_is_broadcast_addr(params.discover_addr))
+    syserr("Argument is not a valid broadcast address");
   //if (params.default_station_name.size() <= 0 || params.sender_name.size() > 64)
   //  syserr("Sender name require length between 1 and 64");
 }
@@ -47,7 +82,6 @@ ReceiverParameters ReceiverParametersParser::parse(int argc, const char **argv) 
     std::string default_name = "";
 
     if (vm.count("-n")) {
-      syslogger("aaaa");
       auto name = vm["-n"].as<std::string>();
       if (name.size() <= 0 || name.size() > 64)
         syserr("Station name require length between 1 and 64");
